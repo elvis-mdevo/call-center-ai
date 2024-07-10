@@ -30,7 +30,7 @@ _SENTENCE_PUNCTUATION_R = (
     r"([!?;]+|[\.\-:]+(?:$| ))"  # Split by sentence by punctuation
 )
 _TTS_SANITIZER_R = re.compile(
-    r"[^\w\sÀ-ÿ'«»“”\"\"‘’''(),.!?;:\-\+_@/&<>€$%=*]"
+    r"[^\w\sÀ-ÿ'«»“”\"\"‘’''(),.!?;:\-\+_@/&€$%=]"
 )  # Sanitize text for TTS
 
 
