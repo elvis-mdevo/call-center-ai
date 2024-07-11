@@ -30,7 +30,7 @@ _SENTENCE_PUNCTUATION_R = (
     r"([!?;]+|[\.\-:]+(?:$| ))"  # Split by sentence by punctuation
 )
 _TTS_SANITIZER_R = re.compile(
-    r"[^\w\sÀ-ÿ'«»“”\"\"‘’''(),.!?;:\-\+_@/&<>€$%=*]"
+    r"[^\w\sÀ-ÿ'«»“”\"\"‘’''(),.!?;:\-\+_@/&€$%=]"
 )  # Sanitize text for TTS
 
 
@@ -345,7 +345,10 @@ def _audio_from_text(
         </voice>
     </speak>
     """
-    return SsmlSource(ssml_text=ssml.strip())
+    return SsmlSource(
+        ssml_text=ssml.strip(),
+        custom_voice_endpoint_id="efc4354d-8ffc-415c-af1d-76ebe2172994",
+    )
 
 
 async def handle_recognize_ivr(

@@ -10,14 +10,11 @@ class TrainingModel(BaseModel, frozen=True):
     Represents a training document from AI Search.
     """
 
-    answer: str
-    context: str
-    created_at: datetime
-    document_synthesis: str
-    file_path: str
-    id: UUID
-    question: str
+    content: str
+    id: str
     score: float
+    title: str
+    url: str
 
     def __hash__(self) -> int:
         return self.id.__hash__()
@@ -37,4 +34,4 @@ class TrainingModel(BaseModel, frozen=True):
         """
         Returns fields that should be excluded from sending to LLM because they are not relevant for document understanding.
         """
-        return {"id", "file_path", "score", "created_at"}
+        return {"id", "url", "score"}
