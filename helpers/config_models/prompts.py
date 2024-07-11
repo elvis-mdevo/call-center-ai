@@ -53,6 +53,7 @@ class LlmModel(BaseModel):
         - Today is {date}
     """
     chat_system_tpl: str = """
+        Never start a message with hello or by giving your name.
         # Objective
         {task}
 
@@ -491,7 +492,7 @@ class TtsModel(BaseModel):
         "I'm sorry, I wasn't able to respond your request. Please allow me to transfer you to an agent who can assist you further. Please stay on the line and I will get back to you shortly."
     )
     end_call_to_connect_agent_tpl: str = (
-        "Of course, stay on the line. I will transfer you to an agent."
+        "Stay on the line. I am transferring you immediately."
     )
     error_tpl: str = (
         "I'm sorry, I have encountered an error. Could you repeat your request?"
@@ -500,7 +501,7 @@ class TtsModel(BaseModel):
         "Thank you for calling, I hope I've been able to help. You can call back, I've got it all memorized. {bot_company} wishes you a wonderful day!"
     )
     hello_tpl: str = """
-        Hello, I'm {bot_name}, the virtual assistant {bot_company}! Here's how I work: while I'm processing your information, wou will hear a music. Feel free to speak to me in a natural way - I'm designed to understand your requests. During the conversation, you can also send me text messages.
+        Hello, I'm {bot_name}, the virtual assistant {bot_company}! Feel free to speak to me in a natural way, I should be able to understand you without any issues
 """
     timeout_silence_tpl: str = (
         "I'm sorry, I didn't hear anything. If you need help, let me know how I can help you."
