@@ -1,0 +1,88 @@
+# public_domain: https://cs-hackathon-group-3-call-center-ai.azurewebsites.net
+
+database:
+  mode: cosmos_db
+  cosmos_db:
+    access_key: COSMOS_API_KEY 
+    container: calls-v3
+    database: call-center-ai
+    endpoint: https://cs-hackathon-group-3.documents.azure.com:443/
+resources:
+  public_url: https://cshackathongroup3.z28.web.core.windows.net/
+conversation:
+  callback_timeout_hour: 0
+  initiate:
+    agent_phone_number: "+336XXXXXXXX"
+    bot_company: Société Générale
+    bot_name: Corentin
+    lang:
+      default_short_code: "fr-FR"
+      availables:
+        - pronunciations_en: ["French", "FR", "France"]
+          short_code: "fr-FR"
+          voice: "SG BOT - CorentinNeural"
+    task: |
+      Helping customers answer their questions about their bank. The customer is probably calling because they have a question regarding their bank card, bank account or insurance, but it's not certain. The assistant might need some details about which type of card the customer has or which insurance policy they are subscribed to. Only answer if the question is relevant to the bank services. Your role is to provide short and precise answers that are relevant to the customer's question. If you are not sure which card the customer has or which insurance they are subscribed to, you can ask them to clarify. The available cards are (Mastercard, Mastercard Gold, Visa Evolution, Visa Infinite, Visa Kapsul, Visa Premier).
+      Your answer should only rely on the provided context and the documents.
+      If the customer asks a question that is not related to the bank's services, do not answer at all. Ask them for questions about banking services only.
+
+      Keep the answer as short as possible. Don't ennumerate or make lists unless you are asked specifically. Always ask the customer if they want more details after you answer them.
+
+      After you answer, ask the customer if they are happy with your response or if you should clarify.
+
+      What you should not do: Never ask for or collect sensitive information such as passwords or full card numbers. Do not give personalized financial or investment advice. Do not use acronyms or abbreviations. You cannot give finnancial advice.
+
+      If you cannot help the customer, transfer the call to the customer's advisor. If the customer needs to contact their advisor, transfer the call.
+
+      You cannot perform actions or access the customer's file or personal information. You cannot send text messages.
+
+      When the client is asking about insurance coverage, you need to check that they fullfill all the criterion for coverage or reimbursement, including that the specific bank card they used covers them.
+
+
+
+communication_services:
+  access_key: COMMUNICATION_API_KEY
+  call_queue_name: call-33159031640
+  endpoint: cs-hackathon-group-3.europe.communication.azure.com
+  phone_number: "+33159031640"
+  post_queue_name: post-33159031640
+  sms_queue_name: sms-33159031640
+  trainings_queue_name: trainings-33159031640
+sms: {}
+cognitive_service:
+  endpoint: https://cs-hackathon-group-3-westeurope-communication.cognitiveservices.azure.com/
+llm:
+  fast:
+    mode: azure_openai
+    azure_openai:
+      api_key: OPENAI_API_KEY
+      context: 16385
+      deployment: gpt-35-turbo-1106
+      endpoint: https://cs-hackathon-group-3-swedencentral-openai.openai.azure.com/
+      model: gpt-35-turbo
+      streaming: true
+  slow:
+    mode: azure_openai
+    azure_openai:
+      api_key: OPENAI_API_KEY
+      context: 128000
+      deployment: gpt-4o-2024-05-13
+      endpoint: https://cs-hackathon-group-3-swedencentral-openai.openai.azure.com/
+      model: gpt-4o
+      streaming: true
+ai_search:
+  access_key: AISEARCH_API_KEY
+  endpoint: https://cs-hackathon-group-3.search.windows.net
+  index: inde-all-docs
+prompts:
+  llm: {}
+  tts: {}
+ai_translation:
+  access_key: COGNITIVE_API_KEY
+  endpoint: https://cs-hackathon-group-3-francecentral-translate.cognitiveservices.azure.com/
+cache:
+  mode: redis
+  redis:
+    host: cs-hackathon-group-3.redis.cache.windows.net
+    password: REDIS_API_KEY
+    port: 6380
