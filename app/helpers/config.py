@@ -12,7 +12,7 @@ import yaml
 
 
 _CONFIG_ENV = "CONFIG_JSON"
-_CONFIG_FILE = "config.yaml"
+_CONFIG_FILE = "../../infra/configs/config.yaml"
 
 
 class ConfigNotFound(Exception):

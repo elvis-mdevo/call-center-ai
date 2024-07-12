@@ -240,7 +240,7 @@ sequenceDiagram
 
 ## Remote deployment
 
-Application is hosted by Azure Functions. Code will be pushed automatically `make deploy`, with after the deployment.
+Application is hosted by Azure Functions. Code will be pushed automatically `make deploy name="<deployment_name>`, with after the deployment.
 
 Prerequisites:
 
@@ -251,6 +251,7 @@ Prerequisites:
 - [Azure Functions Core Tools](https://github.com/Azure/azure-functions-core-tools?tab=readme-ov-file#installing)
 - [Twilio CLI](https://www.twilio.com/docs/twilio-cli/getting-started/install) (optional)
 
+
 Steps to deploy:
 
 1. [Create a new resource group](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/manage-resource-groups-portal)
@@ -260,7 +261,7 @@ Steps to deploy:
 2. [Create a Communication Services resource](https://learn.microsoft.com/en-us/azure/communication-services/quickstarts/create-communication-resource?tabs=linux&pivots=platform-azp)
 
     - Same name as the resource group
-    - Enable system managed identity
+    - Enable system managed identity (In Settings -> Identity)
 
 3. [Buy a phone number](https://learn.microsoft.com/en-us/azure/communication-services/quickstarts/telephony/get-phone-number?tabs=linux&pivots=platform-azp-new)
 
@@ -268,10 +269,10 @@ Steps to deploy:
     - Allow inbound and outbound communication
     - Enable voice (required) and SMS (optional) capabilities
 
-4. Create a local `config.yaml` file
+4. Create a local `infra/configs/config.yaml` file
 
     ```yaml
-    # config.yaml
+    # infra/configs/config.yaml
     conversation:
       initiate:
         # Phone number the bot will transfer the call to if customer asks for a human agent
@@ -307,10 +308,14 @@ Get the logs with `make logs name=my-rg-name`.
 
 ### Prerequisites
 
-Place a file called `config.yaml` in the root of the project with the following content:
+Install DevTunnels
+
+  - [Devtunnel](https://learn.microsoft.com/en-us/azure/developer/dev-tunnels/get-started?tabs=linux) (optional)
+
+Place a file called `infra/configs/config.yaml` in the root of the project with the following content:
 
 ```yaml
-# config.yaml
+# infra/configs/config.yaml
 resources:
   public_url: "https://xxx.blob.core.windows.net/public"
 
@@ -385,7 +390,7 @@ make install
 
 Also, a public file server is needed to host the audio files. Upload the files with `make copy-resources name=my-rg-name` (`my-rg-name` is the storage account name), or manually.
 
-For your knowledge, this `resources` folder contains:
+For your knowledge, this `app/resources` folder contains:
 
 - Audio files (`xxx.wav`) to be played during the call
 - [Lexicon file (`lexicon.xml`)](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/speech-synthesis-markup-pronunciation#custom-lexicon) to be used by the bot to understand the company products (note: any change [makes up to 15 minutes](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/speech-synthesis-markup-pronunciation#custom-lexicon-file) to be taken into account)
@@ -403,10 +408,10 @@ make dev
 
 Breakpoints can be added in the code to debug the application with your favorite IDE.
 
-Also, `local.py` script is available to test the application without the need of a phone call (= without Communication Services). Run the script with:
+Also, `app/tests/local.py` script is available to test the application without the need of a phone call (= without Communication Services). Run the script with:
 
 ```bash
-python3 -m tests.local
+cd ./app && python3 -m tests.local
 ```
 
 ## Advanced usage
@@ -437,7 +442,7 @@ The bot can be used in multiple languages. It can understand the language the us
 See the [list of supported languages](https://learn.microsoft.com/en-us/azure/ai-services/speech-service/language-support?tabs=tts#supported-languages) for the Text-to-Speech service.
 
 ```yaml
-# config.yaml
+# infra/configs/config.yaml
 [...]
 
 conversation:
@@ -479,7 +484,7 @@ Finally, an optional description can be provided. The description must be short 
 Default schema, for inbound calls, is defined in the configuration:
 
 ```yaml
-# config.yaml
+# infra/configs/config.yaml
 [...]
 
 conversation:
@@ -507,7 +512,7 @@ This solution is priviledged instead of overriding the LLM prompt.
 Default task, for inbound calls, is defined in the configuration:
 
 ```yaml
-# config.yaml
+# infra/configs/config.yaml
 [...]
 
 conversation:
@@ -519,10 +524,10 @@ Task can be customized for each call, by adding the `task` field in the `POST /c
 
 ### Customize the conversation
 
-Conversation options are documented in [conversation.py](helpers/config_models/conversation.py). The options can all be overridden in `config.yaml` file:
+Conversation options are documented in [conversation.py](app/helpers/config_models/conversation.py). The options can all be overridden in `infra/configs/config.yaml` file:
 
 ```yaml
-# config.yaml
+# infra/configs/config.yaml
 [...]
 
 conversation:
@@ -544,10 +549,10 @@ To use a model compatible with the OpenAI completion API, you need to create an 
 - Model name
 - Streaming capability
 
-Then, add the following in the `config.yaml` file:
+Then, add the following in the `infra/configs/config.yaml` file:
 
 ```yaml
-# config.yaml
+# infra/configs/config.yaml
 [...]
 
 llm:
@@ -577,10 +582,10 @@ To use Twilio for SMS, you need to create an account and get the following infor
 - Auth Token
 - Phone number
 
-Then, add the following in the `config.yaml` file:
+Then, add the following in the `infra/configs/config.yaml` file:
 
 ```yaml
-# config.yaml
+# infra/configs/config.yaml
 [...]
 
 sms:
@@ -598,7 +603,7 @@ Note that prompt examples contains `{xxx}` placeholders. These placeholders are 
 Be sure to write all the TTS prompts in English. This language is used as a pivot language for the conversation translation.
 
 ```yaml
-# config.yaml
+# infra/configs/config.yaml
 [...]
 
 prompts:

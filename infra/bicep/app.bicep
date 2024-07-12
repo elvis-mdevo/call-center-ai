@@ -19,6 +19,7 @@ param openaiLocation string
 param searchLocation string
 param tags object
 param version string
+param enableContentFilter bool
 
 var appName = 'call-center-ai'
 var prefix = deployment().name
@@ -28,7 +29,7 @@ var llmFastModelFullName = toLower('${llmFastModel}-${llmFastVersion}')
 var llmSlowModelFullName = toLower('${llmSlowModel}-${llmSlowVersion}')
 var embeddingModelFullName = toLower('${embeddingModel}-${embeddingVersion}')
 var cosmosContainerName = 'calls-v3'  // Third schema version
-var localConfig = loadYamlContent('../config.yaml')
+var localConfig = loadYamlContent('../infra/configs/config.yaml')
 var phonenumberSanitized = replace(localConfig.communication_services.phone_number, '+', '')
 var config = {
   public_domain: appUrl
@@ -462,93 +463,93 @@ resource cognitiveOpenai 'Microsoft.CognitiveServices/accounts@2024-04-01-previe
   }
 }
 
-// resource contentfilter 'Microsoft.CognitiveServices/accounts/raiPolicies@2024-04-01-preview' = {
-//   parent: cognitiveOpenai
-//   name: 'disabled'
-//   tags: tags
-//   properties: {
-//     basePolicyName: 'Microsoft.Default'
-//     mode: 'Deferred'  // Async moderation
-//     contentFilters: [
-//       // Indirect attacks
-//       {
-//         blocking: true
-//         enabled: true
-//         name: 'indirect_attack'
-//         source: 'Prompt'
-//       }
-//       // Jailbreak
-//       {
-//         blocking: true
-//         enabled: true
-//         name: 'jailbreak'
-//         source: 'Prompt'
-//       }
-//       // Prompt
-//       {
-//         blocking: false
-//         enabled: false
-//         name: 'hate'
-//         source: 'Prompt'
-//       }
-//       {
-//         blocking: false
-//         enabled: false
-//         name: 'sexual'
-//         source: 'Prompt'
-//       }
-//       {
-//         blocking: false
-//         enabled: false
-//         name: 'selfharm'
-//         source: 'Prompt'
-//       }
-//       {
-//         blocking: false
-//         enabled: false
-//         name: 'violence'
-//         source: 'Prompt'
-//       }
-//       {
-//         blocking: false
-//         enabled: false
-//         name: 'profanity'
-//         source: 'Prompt'
-//       }
-//       // Completion
-//       {
-//         blocking: false
-//         enabled: false
-//         name: 'hate'
-//         source: 'Completion'
-//       }
-//       {
-//         blocking: false
-//         enabled: false
-//         name: 'sexual'
-//         source: 'Completion'
-//       }
-//       {
-//         blocking: false
-//         enabled: false
-//         name: 'selfharm'
-//         source: 'Completion'
-//       }
-//       {
-//         blocking: false
-//         enabled: false
-//         name: 'violence'
-//         source: 'Completion'
-//       }
-//       {
-//         blocking: false
-//         enabled: false
-//         name: 'profanity'
-//         source: 'Completion'
-//       }
-//     ]
-//   }
-// }
+resource contentfilter 'Microsoft.CognitiveServices/accounts/raiPolicies@2024-04-01-preview' = if (enableContentFilter) {
+  parent: cognitiveOpenai
+  name: 'disabled'
+    tags: tags
+    properties: {
+      basePolicyName: 'Microsoft.Default'
+      mode: 'Deferred'  // Async moderation
+      contentFilters: [
+        // Indirect attacks
+        {
+          blocking: true
+          enabled: true
+          name: 'indirect_attack'
+          source: 'Prompt'
+        }
+        // Jailbreak
+        {
+          blocking: true
+          enabled: true
+          name: 'jailbreak'
+          source: 'Prompt'
+        }
+        // Prompt
+        {
+          blocking: false
+          enabled: false
+          name: 'hate'
+          source: 'Prompt'
+        }
+        {
+          blocking: false
+          enabled: false
+          name: 'sexual'
+          source: 'Prompt'
+        }
+        {
+          blocking: false
+          enabled: false
+          name: 'selfharm'
+          source: 'Prompt'
+        }
+        {
+          blocking: false
+          enabled: false
+          name: 'violence'
+          source: 'Prompt'
+        }
+        {
+          blocking: false
+          enabled: false
+          name: 'profanity'
+          source: 'Prompt'
+        }
+        // Completion
+        {
+          blocking: false
+          enabled: false 
+          name: 'hate'
+          source: 'Completion'
+        }
+        {
+          blocking: false
+          enabled: false
+          name: 'sexual'
+          source: 'Completion'
+        }
+        {
+          blocking: false
+          enabled: false
+          name: 'selfharm'
+          source: 'Completion'
+        }
+        {
+          blocking: false
+          enabled: false
+          name: 'violence'
+          source: 'Completion'
+        }
+        {
+          blocking: false
+          enabled: false
+          name: 'profanity'
+          source: 'Completion'
+        }
+    ]
+  }
+}
 
 resource llmSlow 'Microsoft.CognitiveServices/accounts/deployments@2024-04-01-preview' = {
   parent: cognitiveOpenai
@@ -559,7 +560,7 @@ resource llmSlow 'Microsoft.CognitiveServices/accounts/deployments@2024-04-01-pr
     name: llmSlowDeploymentType
   }
   properties: {
-    // raiPolicyName: contentfilter.name
+    raiPolicyName: (enableContentFilter? contentfilter.name: null) 
     versionUpgradeOption: 'NoAutoUpgrade'
     model: {
       format: 'OpenAI'
@@ -578,7 +579,7 @@ resource llmFast 'Microsoft.CognitiveServices/accounts/deployments@2024-04-01-pr
     name: llmFastDeploymentType
   }
   properties: {
-    // raiPolicyName: contentfilter.name
+    raiPolicyName: (enableContentFilter? contentfilter.name: null) 
     versionUpgradeOption: 'NoAutoUpgrade'
     model: {
       format: 'OpenAI'
@@ -600,7 +601,7 @@ resource embedding 'Microsoft.CognitiveServices/accounts/deployments@2024-04-01-
     name: embeddingDeploymentType
   }
   properties: {
-    // raiPolicyName: contentfilter.name
+    raiPolicyName: (enableContentFilter? contentfilter.name: null) 
     versionUpgradeOption: 'NoAutoUpgrade'
     model: {
       format: 'OpenAI'

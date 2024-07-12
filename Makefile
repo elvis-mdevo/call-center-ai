@@ -1,3 +1,5 @@
+# Global Path
+app_config_folder = "app/configs"
 # Versioning
 version_full ?= $(shell $(MAKE) --silent version-full)
 version_small ?= $(shell $(MAKE) --silent version)
@@ -13,9 +15,9 @@ search_location := francecentral
 # Sanitize variables
 name_sanitized := $(shell echo $(name) | tr '[:upper:]' '[:lower:]')
 # App configuration
-bot_phone_number ?= $(shell cat config.yaml | yq '.communication_services.phone_number')
+bot_phone_number ?= $(shell cat $(app_config_folder)/config.yaml | yq '.communication_services.phone_number')
 event_subscription_name ?= $(shell echo '$(name_sanitized)-$(bot_phone_number)' | tr -dc '[:alnum:]-')
-twilio_phone_number ?= $(shell cat config.yaml | yq '.sms.twilio.phone_number')
+twilio_phone_number ?= $(shell cat $(app_config_folder)/config.yaml | yq '.sms.twilio.phone_number')
 # Bicep outputs
 app_url ?= $(shell az deployment sub show --name $(name_sanitized) | yq '.properties.outputs["appUrl"].value')
 blob_storage_public_name ?= $(shell az deployment sub show --name $(name_sanitized) | yq '.properties.outputs["blobStoragePublicName"].value')
@@ -24,16 +26,16 @@ function_app_name ?= $(shell az deployment sub show --name $(name_sanitized) | y
 log_analytics_workspace_customer_id ?= $(shell az deployment sub show --name $(name_sanitized) | yq '.properties.outputs["logAnalyticsWorkspaceName"].value')
 
 version:
-	@bash ./cicd/version/version.sh -g . -c
+	@bash ./infra/cicd/version/version.sh -g . -c
 
 version-full:
-	@bash ./cicd/version/version.sh -g . -c -m
+	@bash ./infra/cicd/version/version.sh -g . -c -m
 
 install:
 	@echo "➡️ Installing Twilio CLI..."
 	twilio --version || brew tap twilio/brew && brew install twilio
 
-	@for f in $$(find . -name "requirements*.txt"); do \
+	cd ./app && for f in $$(find . -name "requirements*.txt"); do \
 		echo "➡️ Installing Python dependencies in $$f..."; \
 		python3 -m pip install -r $$f; \
 	done
@@ -42,7 +44,7 @@ upgrade:
 	@echo "➡️ Upgrading pip..."
 	python3 -m pip install --upgrade pip
 
-	@for f in $$(find . -name "requirements*.txt"); do \
+	cd ./app && for f in $$(find . -name "requirements*.txt"); do \
 		echo "➡️ Upgrading Python dependencies in $$f..."; \
 		python3 -m pur -r $$f; \
 	done
@@ -52,23 +54,23 @@ upgrade:
 
 test:
 	@echo "➡️ Running Black..."
-	python3 -m black --check .
+	cd ./app && python3 -m black --check .
 
 	@echo "➡️ Running deptry..."
-	python3 -m deptry \
+	cd ./app && python3 -m deptry \
 		--ignore-notebooks \
 		--per-rule-ignores "DEP002=aiohttp" \
 		--per-rule-ignores "DEP003=aiohttp_retry" \
 		.
 
 	@echo "➡️ Running Pytest..."
-	PUBLIC_DOMAIN=dummy pytest \
+	cd ./app && PUBLIC_DOMAIN=dummy pytest \
 		--junit-xml=test-reports/$$(date +%Y%m%d%H%M%S).xml \
 		tests/*.py
 
 lint:
 	@echo "➡️ Running Black..."
-	python3 -m black .
+	cd ./app && python3 -m black .
 
 tunnel:
 	@echo "➡️ Creating tunnel..."
@@ -81,7 +83,7 @@ tunnel:
 	devtunnel host $(tunnel_name)
 
 dev:
-	VERSION=$(version_full) PUBLIC_DOMAIN=$(tunnel_url) func start --python
+	cd ./app && VERSION=$(version_full) PUBLIC_DOMAIN=$(tunnel_url) func start --python
 
 deploy:
 	@echo "👀 Current subscription:"
@@ -97,11 +99,11 @@ deploy:
 			'openaiLocation=$(openai_location)' \
 			'searchLocation=$(search_location)' \
 			'version=$(version_full)' \
-		--template-file bicep/main.bicep \
+		--template-file infra/bicep/main.bicep \
 	 	--name $(name_sanitized)
 
 	@echo "🛠️ Deploying Function App..."
-	func azure functionapp publish $(function_app_name) --python
+	cd ./app && func azure functionapp publish $(function_app_name) --python
 
 	@echo "🚀 Call Center AI is running on $(app_url)"
 
@@ -110,9 +112,6 @@ deploy:
 post-deploy:
 	@$(MAKE) copy-resources \
 		name=$(blob_storage_public_name)
-
-	@$(MAKE) twilio-register \
-		endpoint=$(app_url)
 
 	@$(MAKE) logs name=$(name_sanitized)
 
@@ -127,7 +126,7 @@ destroy:
 	az deployment sub delete --name $(name_sanitized)
 
 logs:
-	func azure functionapp logstream $(function_app_name) \
+	cd ./app && func azure functionapp logstream $(function_app_name) \
 		--browser
 
 twilio-register:
@@ -137,7 +136,7 @@ twilio-register:
 
 copy-resources:
 	@echo "📦 Copying resources to Azure storage account..."
-	az storage blob upload-batch \
+	cd ./app && az storage blob upload-batch \
 		--account-name $(name_sanitized) \
 		--destination '$$web' \
 		--no-progress \

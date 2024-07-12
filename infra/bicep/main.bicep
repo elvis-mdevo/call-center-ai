@@ -19,6 +19,7 @@ param location string = deployment().location
 param openaiLocation string
 param searchLocation string
 param version string
+param enableContentFilter bool = false
 
 targetScope = 'subscription'
 
@@ -67,5 +68,6 @@ module app 'app.bicep' = {
     searchLocation: searchLocation
     tags: tags
     version: version
+    enableContentFilter: enableContentFilter
   }
 }

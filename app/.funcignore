@@ -13,8 +13,7 @@ tests/
 .pytest_cache/
 test-reports/
 
-# Documentation and examples
-docs/
+# Examples
 examples/
 
 # Python cache
@@ -23,3 +22,9 @@ __pycache__/
 
 # GitHub
 .github/
+
+# only for SG demo db
+# helpers/db/
+
+# Static resources
+resources/

@@ -575,7 +575,16 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 
+# only for SG demo db
+# app/helpers/db/
+
+# Local configuration
+infra/configs/config.*.yaml
+infra/local.settings.json
+
 ### VisualStudio Patch ###
 # Additional files built by Visual Studio
 
 # End of https://www.toptal.com/developers/gitignore/api/osx,linux,dotenv,eclipse,windows,visualstudio,jupyternotebooks,visualstudiocode,azurefunctions
+
+
