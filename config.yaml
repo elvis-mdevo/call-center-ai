@@ -1,18 +1,8 @@
 # public_domain: https://cs-hackathon-group-3-call-center-ai.azurewebsites.net
-
-database:
-  mode: cosmos_db
-  cosmos_db:
-    access_key: COSMOS_API_KEY 
-    container: calls-v3
-    database: call-center-ai
-    endpoint: https://cs-hackathon-group-3.documents.azure.com:443/
-resources:
-  public_url: https://cshackathongroup3.z28.web.core.windows.net/
 conversation:
   callback_timeout_hour: 0
   initiate:
-    agent_phone_number: "+336XXXXXXXX"
+    agent_phone_number: "+33664544216"
     bot_company: Société Générale
     bot_name: Corentin
     lang:
@@ -38,51 +28,14 @@ conversation:
 
       When the client is asking about insurance coverage, you need to check that they fullfill all the criterion for coverage or reimbursement, including that the specific bank card they used covers them.
 
-
-
 communication_services:
-  access_key: COMMUNICATION_API_KEY
-  call_queue_name: call-33159031640
-  endpoint: cs-hackathon-group-3.europe.communication.azure.com
   phone_number: "+33159031640"
-  post_queue_name: post-33159031640
-  sms_queue_name: sms-33159031640
-  trainings_queue_name: trainings-33159031640
+
 sms: {}
+
 cognitive_service:
   endpoint: https://cs-hackathon-group-3-westeurope-communication.cognitiveservices.azure.com/
-llm:
-  fast:
-    mode: azure_openai
-    azure_openai:
-      api_key: OPENAI_API_KEY
-      context: 16385
-      deployment: gpt-35-turbo-1106
-      endpoint: https://cs-hackathon-group-3-swedencentral-openai.openai.azure.com/
-      model: gpt-35-turbo
-      streaming: true
-  slow:
-    mode: azure_openai
-    azure_openai:
-      api_key: OPENAI_API_KEY
-      context: 128000
-      deployment: gpt-4o-2024-05-13
-      endpoint: https://cs-hackathon-group-3-swedencentral-openai.openai.azure.com/
-      model: gpt-4o
-      streaming: true
-ai_search:
-  access_key: AISEARCH_API_KEY
-  endpoint: https://cs-hackathon-group-3.search.windows.net
-  index: inde-all-docs
+
 prompts:
   llm: {}
   tts: {}
-ai_translation:
-  access_key: COGNITIVE_API_KEY
-  endpoint: https://cs-hackathon-group-3-francecentral-translate.cognitiveservices.azure.com/
-cache:
-  mode: redis
-  redis:
-    host: cs-hackathon-group-3.redis.cache.windows.net
-    password: REDIS_API_KEY
-    port: 6380
