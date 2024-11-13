@@ -158,7 +158,20 @@ deploy-bicep:
 		--template-file infra/bicep/main.bicep \
 	 	--name $(name_sanitized)
 
-deploy-post:
+	@echo "💤 Wait 10 secs for output to be available..."
+	sleep 10
+
+	@echo "🛠️ Deploying Function App..."
+	func azure functionapp publish $(function_app_name) \
+		--build local \
+		--build-native-deps \
+		--python
+
+	@echo "🚀 Call Center AI is running on $(app_url)"
+
+	@$(MAKE) post-deploy name=$(name_sanitized)
+
+post-deploy:
 	@$(MAKE) copy-resources \
 		name=$(blob_storage_public_name)
 
